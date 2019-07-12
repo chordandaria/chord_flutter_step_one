@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'api_url.dart';
+import 'bean/userinfo_bean.dart';
+import 'netfactory.dart';
+import 'package:chord_flutter_step_one/bean/index_bean.dart';
+import 'package:flutter_swiper/flutter_swiper.dart';
 
 void main() => runApp(MyApp());
 
@@ -7,7 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Chord Flutter App',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -20,7 +25,8 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      debugShowCheckedModeBanner: false,
+      home: MyHomePage(title: 'IndexHomePage'),
     );
   }
 }
@@ -44,68 +50,192 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  final List pageList = [
+    IndexPage(),
+    MessageParkPage()
+  ];
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+  int _currentIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return  Scaffold(
+      body: pageList[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: (index){
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          items: [
+            BottomNavigationBarItem(icon: Icon(Icons.home),title: Text("首页")),
+            BottomNavigationBarItem(icon: Icon(Icons.message),title: Text("消息"))
+          ]),
+    );
+  }
+}
+
+class IndexPage extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    return _IndexPage();
+  }
+}
+
+class _IndexPage extends State<IndexPage> {
+  UserInfoBean userInfo ;
+  List<SlidersBean> _sliders = List<SlidersBean>();
+  List<SectionsBean> _sections = List<SectionsBean>();
+
+  void requestData(){
+    getUserInfo();
+    getIndexInfo();
+  }
+
+  void getUserInfo() async {
+    await NetFactory().dio.get(USERINFO).then((response){
+      if(response.data["state"] == 200){
+        setState(() {
+          userInfo = UserInfoBean.fromJson(response.data);
+        });
+      }
     });
+  }
+
+  void getIndexInfo() async {
+    await NetFactory().dio.get(INDEXINFO).then((response){
+      if(response.data["state"] == 200){
+          IndexBean temp = IndexBean.fromJson(response.data["data"]);
+          setState(() {
+            _sliders = temp.sliders;
+            _sections = temp.sections;
+          });
+      }
+    });
+  }
+
+  List<Widget> getIndexList(){
+    List<Widget> temp = new List();
+    if(_sections !=null){
+      _sections.forEach((item){
+        if(item.type == "grid"){
+          temp.add(getGridView(item));
+        }else if(item.type == "image"){
+          temp.add(Container(height: 120,child: Image.network(item.image,fit: BoxFit.fill,),));
+        }
+      });
+    }
+
+    return temp;
+  }
+
+  Widget getGridView(SectionsBean bean){
+    return GridView.count(
+      crossAxisCount: 5,
+      crossAxisSpacing: 1,
+      mainAxisSpacing: 1,
+      padding: EdgeInsets.all(1.0),
+      childAspectRatio: 1.0,
+      shrinkWrap: true,
+      children: getGridItems(bean.icons),
+    );
+  }
+
+  List<Widget> getGridItems(List<IconsBean> items){
+    return items.map((item) => getGridChild(item)).toList();
+  }
+
+  Widget getGridChild(IconsBean item){
+    return GestureDetector(
+      child: Card(
+        child: Container(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Image(image: NetworkImage(item.image),width: 23.0,height: 23.0,),
+              Container(
+                margin: EdgeInsets.only(top: 3.0),
+                child: Text(item.title),
+              )
+            ],
+          ),
+        ),
+      ),
+      onTap: (){
+        switch(item.type){
+          case "reserve":
+//            Navigator.push(context, MaterialPageRoute(builder: (context) => GroupEventPage()));
+            Scaffold.of(context).showSnackBar(SnackBar(content: Text(item.toString()),duration: Duration(seconds: 2),));
+            Navigator.of(context).pushNamed("/group_event/index");
+            break;
+        }
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    requestData();
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    // TODO: implement build
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
+      drawer: Drawer(
+        child: ListView(
           children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
+            UserAccountsDrawerHeader(
+              accountName: Text(userInfo == null? "null":userInfo.data.name),
+              accountEmail: Text(userInfo == null? "null":userInfo.data.mail),
+              currentAccountPicture: CircleAvatar(
+                  backgroundImage: NetworkImage(userInfo == null? "http://caunion.cdn.gongjiayun.cn/FtDeZYV5PFVJaSeat2mYyhPZPcIM":userInfo.data.avater)),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      appBar: AppBar(
+        title: Text("首页"),
+        centerTitle: true,),
+      body: ListView(
+        children: <Widget>[
+          Container(height: 200,
+          child: Swiper(
+              itemCount: _sliders.length,viewportFraction: 0.8,scale: 0.9,itemBuilder: (BuildContext context,int index){
+                return Image.network(_sliders[index].image,fit: BoxFit.fill,);
+          },
+          autoplay: true,),),
+          ListView(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            children: getIndexList(),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class MessageParkPage extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    return _MessageParkPage();
+  }
+}
+
+class _MessageParkPage extends State<MessageParkPage> {
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return Scaffold(
+      appBar: AppBar(title: Text("消息"),
+        centerTitle: true,),
     );
   }
 }
