@@ -88,6 +88,7 @@ class _IndexPage extends State<IndexPage> {
   UserInfoBean userInfo ;
   List<SlidersBean> _sliders = List<SlidersBean>();
   List<SectionsBean> _sections = List<SectionsBean>();
+  bool _isSelect = false;
 
   void requestData(){
     getUserInfo();
@@ -217,6 +218,11 @@ class _IndexPage extends State<IndexPage> {
           )
         ],
       ),
+      floatingActionButton: FloatingActionButton(onPressed: (){
+        setState(() {
+          _isSelect = !_isSelect;
+        });
+      },child: Icon(Icons.android,color: _isSelect?Colors.red:Colors.white,),),
     );
   }
 }
