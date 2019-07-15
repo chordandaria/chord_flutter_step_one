@@ -4,6 +4,8 @@ import 'bean/userinfo_bean.dart';
 import 'netfactory.dart';
 import 'package:chord_flutter_step_one/bean/index_bean.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:chord_flutter_step_one/bean/member_list_bean.dart';
+import 'reserve_list_activity.dart';
 
 void main() => runApp(MyApp());
 
@@ -12,7 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Chord Flutter App',
+      title: 'Nogizaka46',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -23,7 +25,7 @@ class MyApp extends StatelessWidget {
         // or simply save your changes to "hot reload" in a Flutter IDE).
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.deepPurple,
       ),
       debugShowCheckedModeBanner: false,
       home: MyHomePage(title: 'IndexHomePage'),
@@ -105,7 +107,7 @@ class _IndexPage extends State<IndexPage> {
     });
   }
 
-  void getIndexInfo() async {
+  Future<void> getIndexInfo() async {
     await NetFactory().dio.get(INDEXINFO).then((response){
       if(response.data["state"] == 200){
           IndexBean temp = IndexBean.fromJson(response.data["data"]);
@@ -134,12 +136,13 @@ class _IndexPage extends State<IndexPage> {
 
   Widget getGridView(SectionsBean bean){
     return GridView.count(
-      crossAxisCount: 5,
+      crossAxisCount: 4,
       crossAxisSpacing: 1,
       mainAxisSpacing: 1,
       padding: EdgeInsets.all(1.0),
       childAspectRatio: 1.0,
       shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
       children: getGridItems(bean.icons),
     );
   }
@@ -169,8 +172,8 @@ class _IndexPage extends State<IndexPage> {
         switch(item.type){
           case "reserve":
 //            Navigator.push(context, MaterialPageRoute(builder: (context) => GroupEventPage()));
-            Scaffold.of(context).showSnackBar(SnackBar(content: Text(item.toString()),duration: Duration(seconds: 2),));
-            Navigator.of(context).pushNamed("/group_event/index");
+//            Scaffold.of(context).showSnackBar(SnackBar(content: Text(item.toString()),duration: Duration(seconds: 2),));
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => ReserveListPage()));
             break;
         }
       },
@@ -203,21 +206,21 @@ class _IndexPage extends State<IndexPage> {
       appBar: AppBar(
         title: Text("首页"),
         centerTitle: true,),
-      body: ListView(
+      body: RefreshIndicator(child:  ListView(
         children: <Widget>[
           Container(height: 200,
-          child: Swiper(
+            child: Swiper(
               itemCount: _sliders.length,viewportFraction: 0.8,scale: 0.9,itemBuilder: (BuildContext context,int index){
-                return Image.network(_sliders[index].image,fit: BoxFit.fill,);
-          },
-          autoplay: true,),),
+              return Image.network(_sliders[index].image,fit: BoxFit.fill,);
+            },
+              autoplay: true,),),
           ListView(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
             children: getIndexList(),
           )
         ],
-      ),
+      ), onRefresh: getIndexInfo),
       floatingActionButton: FloatingActionButton(onPressed: (){
         setState(() {
           _isSelect = !_isSelect;
@@ -236,12 +239,38 @@ class MessageParkPage extends StatefulWidget {
 }
 
 class _MessageParkPage extends State<MessageParkPage> {
+  MemberlistBean _dateBean;
+
+  void requestData() async {
+    await NetFactory().dio.get(MEMBERLIST).then((response){
+      if(response.data["state"] == 200){
+        setState(() {
+          _dateBean = MemberlistBean.fromJson(response.data);
+        });
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    requestData();
+  }
+
+  Widget getCardInfo(int index){
+    return Container(
+      margin: EdgeInsets.only(top: 15,bottom: 15),
+      child: Image.network(_dateBean.data[index].avater,fit: BoxFit.contain,),);
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(title: Text("消息"),
         centerTitle: true,),
+      body: Swiper(itemCount: _dateBean == null? 0:_dateBean.data.length,viewportFraction: 0.8,scale: 0.9,autoplay: true,duration: 2000,autoplayDelay: 5000,itemBuilder: (BuildContext context,int index) => getCardInfo(index),),
     );
   }
 }
