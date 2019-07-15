@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'api_url.dart';
 import 'bean/userinfo_bean.dart';
@@ -6,6 +8,7 @@ import 'package:chord_flutter_step_one/bean/index_bean.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:chord_flutter_step_one/bean/member_list_bean.dart';
 import 'reserve_list_activity.dart';
+import 'package:image_picker/image_picker.dart';
 
 void main() => runApp(MyApp());
 
@@ -187,6 +190,11 @@ class _IndexPage extends State<IndexPage> {
     requestData();
   }
 
+  Future<File> getImage() async {
+    var image = await ImagePicker.pickImage(source: ImageSource.camera);
+    return image;
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -200,6 +208,11 @@ class _IndexPage extends State<IndexPage> {
               currentAccountPicture: CircleAvatar(
                   backgroundImage: NetworkImage(userInfo == null? "http://caunion.cdn.gongjiayun.cn/FtDeZYV5PFVJaSeat2mYyhPZPcIM":userInfo.data.avater)),
             ),
+            ListTile(title: Text("点击打开摄像头"),onTap: (){
+              getImage().then((file){
+                print(file.path);
+              });
+            },)
           ],
         ),
       ),
