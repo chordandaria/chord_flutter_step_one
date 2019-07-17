@@ -9,6 +9,7 @@ import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:chord_flutter_step_one/bean/member_list_bean.dart';
 import 'reserve_list_activity.dart';
 import 'package:image_picker/image_picker.dart';
+import 'news_list_page.dart';
 
 void main() => runApp(MyApp());
 
@@ -178,6 +179,10 @@ class _IndexPage extends State<IndexPage> {
 //            Scaffold.of(context).showSnackBar(SnackBar(content: Text(item.toString()),duration: Duration(seconds: 2),));
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => ReserveListPage()));
             break;
+          case "form":
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => NewsListPage()));
+            break;
+
         }
       },
     );

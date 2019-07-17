@@ -3,3 +3,4 @@ const String USERINFO = "/user/info";
 const String INDEXINFO = "/app/indexpage";
 const String MEMBERLIST = "/members/list";
 const String RESERVES = "/reserve/list";
+const String NEWSLIST = "/news/list";
