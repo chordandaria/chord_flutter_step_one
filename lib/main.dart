@@ -10,6 +10,7 @@ import 'package:chord_flutter_step_one/bean/member_list_bean.dart';
 import 'reserve_list_activity.dart';
 import 'package:image_picker/image_picker.dart';
 import 'news_list_page.dart';
+import 'vote_list_page.dart';
 
 void main() => runApp(MyApp());
 
@@ -181,6 +182,9 @@ class _IndexPage extends State<IndexPage> {
             break;
           case "form":
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => NewsListPage()));
+            break;
+          case "vote":
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => VoteListPage()));
             break;
 
         }
