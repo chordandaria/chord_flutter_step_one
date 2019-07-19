@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'api_url.dart';
 import 'netfactory.dart';
 import 'bean/vote_list_bean.dart';
+import 'package:flustars/flustars.dart';
 
 class VoteListPage extends StatefulWidget {
   @override
@@ -28,6 +29,7 @@ class _VoteListPage extends State<VoteListPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+
     requestData();
   }
 
@@ -36,6 +38,7 @@ class _VoteListPage extends State<VoteListPage> {
   }
 
   Widget getItem(VoteDataBean item){
+
     return InkWell(
       onTap: (){
         Navigator.of(context).push(MaterialPageRoute(builder: (context) => VoteInfoPage(item)));
@@ -58,7 +61,7 @@ class _VoteListPage extends State<VoteListPage> {
             child: Text(item.title),),
             Container(padding: EdgeInsets.only(right: 15.0,left: 15.0,bottom: 10.0),
             alignment: Alignment.centerLeft,
-            child: Text("活动时间：${item.startTime} - ${item.endTime}"),)
+            child: Text("活动时间:${DateUtil.formatDateStr(item.startTime,format: "yyyy-MM-dd")} - ${DateUtil.formatDateStr(item.endTime,format: "yyyy-MM-dd")}"),)
           ],
         ),
       ),
@@ -97,6 +100,7 @@ class _VoteInfoPage extends State<VoteInfoPage> {
   _VoteInfoPage(this._data);
 
   List<Widget> getListItems(){
+    print(SpUtil.getString("user",defValue: "no"));
     List<Widget> temp = List();
     temp.add(Container(
       height: 188.0,

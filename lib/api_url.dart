@@ -5,3 +5,4 @@ const String MEMBERLIST = "/members/list";
 const String RESERVES = "/reserve/list";
 const String NEWSLIST = "/news/list";
 const String VOTELIST = "/vote/list";
+const String EVENTLIST = "/event/list";

@@ -11,6 +11,7 @@ import 'reserve_list_activity.dart';
 import 'package:image_picker/image_picker.dart';
 import 'news_list_page.dart';
 import 'vote_list_page.dart';
+import 'event_list_page.dart';
 
 void main() => runApp(MyApp());
 
@@ -186,6 +187,9 @@ class _IndexPage extends State<IndexPage> {
           case "vote":
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => VoteListPage()));
             break;
+          case "approval":
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => EventListPage()));
+            break;
 
         }
       },
@@ -292,7 +296,14 @@ class _MessageParkPage extends State<MessageParkPage> {
     return Scaffold(
       appBar: AppBar(title: Text("消息"),
         centerTitle: true,),
-      body: Swiper(itemCount: _dateBean == null? 0:_dateBean.data.length,viewportFraction: 0.8,scale: 0.9,autoplay: true,duration: 2000,autoplayDelay: 5000,itemBuilder: (BuildContext context,int index) => getCardInfo(index),),
+      body: Swiper(
+        itemCount: _dateBean == null? 0:_dateBean.data.length,
+        viewportFraction: 0.8,
+        scale: 0.9,
+        autoplay: true,
+        duration: 2000,
+        autoplayDelay: 5000,
+        itemBuilder: (BuildContext context,int index) => getCardInfo(index),),
     );
   }
 }
